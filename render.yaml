@@ -5,21 +5,20 @@ services:
     name: condominio-db
     env: postgres
     plan: free # Usa el plan gratuito
-    postgresMajorVersion: 14
+    version: "14" 
 
   # 2. Definimos el servicio de nuestra aplicación web
   - type: web
     name: condominio-app
     env: python
-    plan: free # Usa el plan gratuito
+    plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4 # O la versión de Python que estés usando
+        value: 3.11.4 
       - key: DATABASE_URL
         fromService:
           type: pserv
           name: condominio-db
           property: connectionString
-      # Aquí añadiremos las variables secretas después

@@ -5,7 +5,7 @@ services:
     name: condominio-db
     env: postgres
     plan: free # Usa el plan gratuito
-    version: "14" 
+    # HEMOS ELIMINADO LA LÍNEA DE LA VERSIÓN DE AQUÍ
 
   # 2. Definimos el servicio de nuestra aplicación web
   - type: web
@@ -16,7 +16,7 @@ services:
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4 
+        value: 3.11.4 # O la versión que uses
       - key: DATABASE_URL
         fromService:
           type: pserv

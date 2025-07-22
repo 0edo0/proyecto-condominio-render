@@ -1,0 +1,209 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{% block admin_title %}Gestionar Habitaciones y Alquileres{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="h2 mb-0">Gestión de Habitaciones y Alquileres</h1>
+    <a href="{{ url_for('admin.form_nueva_habitacion') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle-fill me-2"></i>Crear Nueva Habitación
+    </a>
+</div>
+<hr>
+
+<!-- Mensajes Flash (para mostrar éxito o error de las acciones) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tabla-habitaciones">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Descripción</th>
+                        <th>Alquiler</th>
+                        <th>Estado</th>
+                        <th>Inquilino Actual</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hab in habitaciones %}
+                    <tr>
+                        <td><strong>{{ hab.numero_habitacion }}</strong></td>
+                        <td style="max-width: 300px;">{{ hab.descripcion }}</td>
+                        <td>S/ {{ "%.2f"|format(hab.monto_alquiler) }}</td>
+                        <td>
+                            {% if hab.estado == 'disponible' %}
+                                <span class="badge bg-success">Disponible</span>
+                            {% elif hab.estado == 'ocupada' %}
+                                <span class="badge bg-warning text-dark">Ocupada</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Mantenimiento</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ hab.nombre_inquilino or 'N/A' }} {{ hab.apellido_inquilino or ''}}</td>
+                        <td class="text-center">
+                            <!-- Botones sin onclick, usan data-attributes -->
+                            {% if hab.estado == 'disponible' %}
+                                <button class="btn btn-sm btn-success btn-alquilar" data-id="{{ hab.id_habitacion }}">
+                                    <i class="bi bi-key-fill me-1"></i>Alquilar
+                                </button>
+                            {% elif hab.estado == 'ocupada' %}
+                                <button class="btn btn-sm btn-warning btn-finalizar" data-id="{{ hab.id_habitacion }}">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Finalizar
+                                </button>
+                            {% endif %}
+    
+                            <a href="{{ url_for('admin.form_editar_habitacion', id_habitacion=hab.id_habitacion) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-fill"></i></a>
+                            
+                            {% if hab.estado != 'ocupada' %}
+                                <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="{{ hab.id_habitacion }}">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= MODALES COMPLETOS ======================= -->
+
+<!-- Modal para Alquilar -->
+<div class="modal fade" id="alquilarModal" tabindex="-1" aria-labelledby="alquilarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="alquilarForm" method="POST" action="{{ url_for('admin.alquilar_habitacion') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alquilarModalLabel">Asignar Inquilino a Habitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_habitacion" id="id_habitacion_alquilar">
+                    <div class="mb-3">
+                        <label for="select_inquilino" class="form-label">Seleccionar Inquilino Disponible:</label>
+                        <select class="form-select" id="select_inquilino" name="id_inquilino" required>
+                            <option value="">Cargando inquilinos...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Alquiler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Genérico de Confirmación para Eliminar y Finalizar -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmActionModalLabel">Confirmar Acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmActionModalBody">
+                ¿Estás seguro de realizar esta acción?
+            </div>
+            <div class="modal-footer">
+                <form id="confirmActionForm" method="POST" action="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" id="confirmActionButton">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ======================= SCRIPT COMPLETO Y CORREGIDO ======================= -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Inicialización de los modales de Bootstrap para poder controlarlos desde JS
+    const alquilarModalEl = new bootstrap.Modal(document.getElementById('alquilarModal'));
+    const confirmActionModalEl = new bootstrap.Modal(document.getElementById('confirmActionModal'));
+    
+    // El 'escuchador' de eventos se asigna a toda la tabla
+    const tablaHabitaciones = document.getElementById('tabla-habitaciones');
+    if (tablaHabitaciones) {
+        tablaHabitaciones.addEventListener('click', function(event) {
+            const button = event.target.closest('button');
+            if (!button) return;
+
+            const id = button.dataset.id; // Obtenemos el ID del 'data-id'
+
+            if (button.classList.contains('btn-alquilar')) {
+                abrirModalAlquiler(id);
+            } else if (button.classList.contains('btn-finalizar')) {
+                confirmarFinalizarAlquiler(id);
+            } else if (button.classList.contains('btn-eliminar')) {
+                confirmarEliminar(id);
+            }
+        });
+    }
+
+    // Función para preparar y mostrar el modal de alquiler
+    async function abrirModalAlquiler(idHabitacion) {
+        document.getElementById('id_habitacion_alquilar').value = idHabitacion;
+        const select = document.getElementById('select_inquilino');
+        select.innerHTML = '<option value="">Cargando inquilinos...</option>';
+        select.disabled = true;
+
+        const response = await fetch('/admin/api/inquilinos_disponibles');
+        const inquilinos = await response.json();
+
+        select.innerHTML = '';
+        if (inquilinos.length > 0) {
+            select.disabled = false;
+            inquilinos.forEach(inquilino => {
+                const option = document.createElement('option');
+                option.value = inquilino.id_inquilino;
+                option.textContent = `${inquilino.nombres} ${inquilino.apellidos} (${inquilino.dni})`;
+                select.appendChild(option);
+            });
+        } else {
+            select.innerHTML = '<option value="">No hay inquilinos disponibles</option>';
+        }
+        alquilarModalEl.show();
+    }
+
+    // Función para preparar y mostrar el modal de confirmación para FINALIZAR
+    function confirmarFinalizarAlquiler(idHabitacion) {
+        const form = document.getElementById('confirmActionForm');
+        document.getElementById('confirmActionModalLabel').textContent = 'Confirmar Finalización de Alquiler';
+        document.getElementById('confirmActionModalBody').textContent = '¿Seguro que quieres finalizar este alquiler? La habitación volverá a estar disponible.';
+        document.getElementById('confirmActionButton').className = 'btn btn-warning';
+        document.getElementById('confirmActionButton').textContent = 'Finalizar Alquiler';
+        form.action = '/admin/habitaciones/finalizar_alquiler/' + idHabitacion;
+        confirmActionModalEl.show();
+    }
+
+    // Función para preparar y mostrar el modal de confirmación para ELIMINAR
+    function confirmarEliminar(idHabitacion) {
+        const form = document.getElementById('confirmActionForm');
+        document.getElementById('confirmActionModalLabel').textContent = 'Confirmar Eliminación';
+        document.getElementById('confirmActionModalBody').textContent = '¿Estás seguro de que quieres eliminar esta habitación? Esta acción no se puede deshacer.';
+        document.getElementById('confirmActionButton').className = 'btn btn-danger';
+        document.getElementById('confirmActionButton').textContent = 'Eliminar Permanentemente';
+        form.action = '/admin/habitaciones/eliminar/' + idHabitacion;
+        confirmActionModalEl.show();
+    }
+});
+</script>
+{% endblock %}

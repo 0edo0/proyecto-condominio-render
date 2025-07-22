@@ -1,0 +1,27 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{% block admin_title %}{{ 'Editar' if admin else 'Crear' }} Administrador{% endblock %}
+
+{% block admin_content %}
+<h1 class="h2 mb-0">{{ 'Editar' if admin else 'Crear' }} Administrador</h1>
+<hr>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.procesar_admin') }}">
+            {% if admin %}
+                <input type="hidden" name="id_administrador" value="{{ admin.id_administrador }}">
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6 mb-3"><label for="nombres" class="form-label">Nombres</label><input type="text" class="form-control" id="nombres" name="nombres" value="{{ admin.nombres if admin else '' }}" required></div>
+                <div class="col-md-6 mb-3"><label for="apellidos" class="form-label">Apellidos</label><input type="text" class="form-control" id="apellidos" name="apellidos" value="{{ admin.apellidos if admin else '' }}" required></div>
+            </div>
+            <div class="mb-3"><label for="email" class="form-label">Correo Electrónico</label><input type="email" class="form-control" id="email" name="email" value="{{ admin.email if admin else '' }}" required></div>
+            <div class="mb-3"><label for="password" class="form-label">Contraseña</label><input type="text" class="form-control" id="password" name="password" value="{{ admin.password if admin else '' }}" placeholder="{{ 'Dejar en blanco para no cambiar' if admin else '' }}" {% if not admin %}required{% endif %}><div class="form-text">Si se edita un admin y se deja en blanco, la contraseña no cambiará.</div></div>
+            
+            <a href="{{ url_for('admin.gestionar_admins') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar Administrador</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

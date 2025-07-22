@@ -1,0 +1,94 @@
+{% extends "pages/shared/layout.html" %}
+
+{% block title %}Inicio - Urbana Living{% endblock %}
+
+{% block content %}
+
+    <!-- ======================= SECCIÓN HERO (PRINCIPAL) ======================= -->
+    <header id="hero" class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold text-white">Encuentra tu próximo hogar con nosotros</h1>
+            <p class="lead text-white-50 mb-4">Gestionamos propiedades modernas, seguras y bien ubicadas para tu tranquilidad.</p>
+            <a href="#servicios" class="btn btn-primary btn-lg">Ver Servicios</a>
+        </div>
+    </header>
+
+    <!-- ======================= SECCIÓN NOSOTROS ======================= -->
+    <section id="nosotros" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="fw-bold mb-3">Tu tranquilidad es nuestra prioridad</h2>
+                    <p class="text-muted">En <strong>Urbana Living</strong>, nos dedicamos a la gestión integral de condominios con un enfoque en la excelencia y la transparencia. Entendemos que un hogar es más que cuatro paredes; es un espacio de confort y seguridad.</p>
+                    <p class="text-muted">Nuestro equipo se encarga de todo: desde el mantenimiento de las áreas comunes hasta la gestión de pagos y la atención personalizada a cada inquilino. Nos aseguramos de que cada propiedad cumpla con los más altos estándares de calidad para que tú solo te preocupes por disfrutar tu espacio.</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="img-fluid rounded-3 shadow" alt="Interior de un apartamento moderno y luminoso">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================= SECCIÓN SERVICIOS ======================= -->
+    <section id="servicios" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Servicios Pensados para Ti</h2>
+                <p class="text-muted">Ofrecemos una gestión completa para propietarios e inquilinos.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="h1 mb-3 text-primary">✓</h3>
+                            <h5 class="card-title fw-bold">Portal de Inquilinos</h5>
+                            <p class="card-text text-muted">Accede a tu estado de cuenta, realiza pagos en línea y gestiona tus solicitudes desde la comodidad de tu hogar.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="h1 mb-3 text-primary">✓</h3>
+                            <h5 class="card-title fw-bold">Mantenimiento Eficiente</h5>
+                            <p class="card-text text-muted">Coordinamos reparaciones y mantenimiento preventivo para garantizar que las instalaciones estén siempre en perfecto estado.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="h1 mb-3 text-primary">✓</h3>
+                            <h5 class="card-title fw-bold">Comunicación Directa</h5>
+                            <p class="card-text text-muted">Canales de comunicación abiertos y eficientes para resolver tus dudas y atender tus necesidades rápidamente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ======================= SECCIÓN GALERÍA ======================= -->
+    <section id="galeria" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Nuestros Espacios</h2>
+                <p class="text-muted">Ambientes diseñados para el confort y la vida moderna.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <img src="https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="img-fluid rounded-3 shadow-sm" alt="Sala de estar acogedora">
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <img src="https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="img-fluid rounded-3 shadow-sm" alt="Cocina moderna y funcional">
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <img src="https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="img-fluid rounded-3 shadow-sm" alt="Exterior de un edificio de apartamentos">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NOTA: El footer ya no se pone aquí, porque lo hereda de layout.html -->
+
+{% endblock %}

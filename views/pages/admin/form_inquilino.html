@@ -1,0 +1,90 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{# Bloque para el título de la pestaña del navegador. Cambia dinámicamente. #}
+{% block admin_title %}{{ 'Editar' if inquilino else 'Crear' }} Inquilino{% endblock %}
+
+{% block admin_content %}
+{# Título principal de la página. Si la variable 'inquilino' existe, muestra "Editar", si no, muestra "Crear". #}
+<h1 class="h2 mb-0">{{ 'Editar' if inquilino else 'Crear' }} Inquilino</h1>
+<p class="text-muted">
+    {% if inquilino %}
+        Modifica los datos del inquilino: <strong>{{ inquilino.nombres }} {{ inquilino.apellidos }}</strong>.
+    {% else %}
+        Rellena el formulario para registrar un nuevo inquilino en el sistema.
+    {% endif %}
+</p>
+<hr>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {# El formulario envía los datos a la ruta 'procesar_inquilino' mediante el método POST. #}
+        <form method="POST" action="{{ url_for('admin.procesar_inquilino') }}">
+            
+            {# CONDICIONAL IMPORTANTE: Si estamos editando, incluimos un campo oculto con el ID. #}
+            {# Esto es crucial para que la función del backend sepa qué registro actualizar. #}
+            {% if inquilino %}
+                <input type="hidden" name="id_inquilino" value="{{ inquilino.id_inquilino }}">
+            {% endif %}
+            
+            <div class="row">
+                {# Campo para Nombres #}
+                <div class="col-md-6 mb-3">
+                    <label for="nombres" class="form-label">Nombres</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" value="{{ inquilino.nombres if inquilino else '' }}" required>
+                </div>
+                {# Campo para Apellidos #}
+                <div class="col-md-6 mb-3">
+                    <label for="apellidos" class="form-label">Apellidos</label>
+                    <input type="text" class="form-control" id="apellidos" name="apellidos" value="{{ inquilino.apellidos if inquilino else '' }}" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                {# Campo para DNI. Debe ser único. #}
+                <div class="col-md-6 mb-3">
+                    <label for="dni" class="form-label">DNI</label>
+                    <input type="text" class="form-control" id="dni" name="dni" value="{{ inquilino.dni if inquilino else '' }}" required>
+                </div>
+                {# Campo para Teléfono #}
+                <div class="col-md-6 mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="text" class="form-control" id="telefono" name="telefono" value="{{ inquilino.telefono if inquilino else '' }}">
+                </div>
+            </div>
+            
+            {# Campo para Email. Debe ser único. #}
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ inquilino.email if inquilino else '' }}" required>
+            </div>
+            
+            {# Campo para Contraseña. Recordemos que está en texto plano solo para desarrollo. #}
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="text" class="form-control" id="password" name="password" value="{{ inquilino.password if inquilino else '' }}" required>
+                <div class="form-text">Contraseña visible solo para fines de desarrollo. Cambiar a tipo "password" en producción.</div>
+            </div>
+
+            <div class="row">
+                {# Campo para el día de pago. #}
+                <div class="col-md-6 mb-3">
+                    <label for="dia_pago_mensual" class="form-label">Día de Pago Mensual (1-31)</label>
+                    <input type="number" class="form-control" id="dia_pago_mensual" name="dia_pago_mensual" value="{{ inquilino.dia_pago_mensual if inquilino else '' }}" min="1" max="31" required>
+                </div>
+                {# Campo para el estado del inquilino. #}
+                <div class="col-md-6 mb-3">
+                    <label for="estado" class="form-label">Estado</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="activo" {% if inquilino and inquilino.estado == 'activo' %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if inquilino and inquilino.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            {# Botones de acción #}
+            <a href="{{ url_for('admin.gestionar_inquilinos') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar Inquilino</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

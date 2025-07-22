@@ -1,0 +1,53 @@
+/* Estilos para el layout del panel */
+#wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+#sidebar-wrapper {
+    min-width: 250px;
+    transition: all 0.3s;
+}
+
+#page-content-wrapper {
+    flex: 1;
+    background-color: #f8f9fa; /* Un gris claro para el fondo del contenido */
+}
+
+.sidebar-heading {
+    padding: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.list-group-item {
+    border: none;
+    padding: 1rem;
+}
+
+.list-group-item.active, .list-group-item:hover {
+    background-color: #343a40 !important; /* Un poco más claro que el fondo */
+    color: #fff !important;
+    border-left: 4px solid #0d6efd; /* Acento azul */
+}
+
+/* Estilos personalizados para FullCalendar */
+#calendario-admin {
+    max-height: 80vh; /* Para evitar que sea demasiado grande */
+}
+
+/* Evento de PAGO REALIZADO */
+.fc-event-pagado {
+    background-color: #198754 !important; /* Verde Bootstrap */
+    border-color: #198754 !important;
+    color: white !important;
+    cursor: pointer;
+}
+
+/* Evento de PAGO PENDIENTE */
+.fc-event-pendiente {
+    background-color: #dc3545 !important; /* Rojo Bootstrap */
+    border-color: #dc3545 !important;
+    color: white !important;
+    cursor: pointer;
+}

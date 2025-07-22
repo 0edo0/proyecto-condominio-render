@@ -1,0 +1,111 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{% block admin_title %}Gestionar Inquilinos{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="h2 mb-0">Gestión de Inquilinos</h1>
+    <a href="{{ url_for('admin.form_nuevo_inquilino') }}" class="btn btn-primary"><i class="bi bi-person-plus-fill me-2"></i>Crear Inquilino</a>
+</div>
+<hr>
+
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for c, m in messages %}<div class="alert alert-{{ c if c != 'error' else 'danger' }} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tabla-inquilinos">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Contacto</th>
+                        <th>Habitación</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inq in inquilinos %}
+                    <tr>
+                        <td><strong>{{ inq.apellidos }}, {{ inq.nombres }}</strong><br><small class="text-muted">DNI: {{ inq.dni }}</small></td>
+                        <td>{{ inq.email }}<br><small class="text-muted">Tel: {{ inq.telefono }}</small></td>
+                        <td><span class="badge bg-info text-dark">{{ inq.numero_habitacion or 'Ninguna' }}</span></td>
+                        <td>{% if inq.estado == 'activo' %}<span class="badge bg-success">Activo</span>{% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-success btn-registrar-pago" data-id="{{ inq.id_inquilino }}" data-nombre="{{inq.nombres}} {{inq.apellidos}}" title="Registrar Pago"><i class="bi bi-currency-dollar"></i></button>
+                            <a href="{{ url_for('admin.historial_pagos_inquilino', id_inquilino=inq.id_inquilino) }}" class="btn btn-sm btn-info" title="Ver Historial de Pagos"><i class="bi bi-clock-history"></i></a>
+                            <a href="{{ url_for('admin.form_editar_inquilino', id_inquilino=inq.id_inquilino) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                            <button class="btn btn-sm btn-outline-danger btn-eliminar-inquilino" data-id="{{ inq.id_inquilino }}" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Registrar Pago -->
+<div class="modal fade" id="registrarPagoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="registrarPagoForm" method="POST" action="{{ url_for('admin.registrar_pago_route') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registrarPagoModalLabel">Registrar Pago para </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_inquilino" id="id_inquilino_pago">
+                    <div class="mb-3"><label for="mes_correspondiente" class="form-label">Mes a Pagar (Formato AAAA-MM)</label><input type="month" class="form-control" id="mes_correspondiente" name="mes_correspondiente" required></div>
+                    <div class="mb-3"><label for="monto_pagado" class="form-label">Monto a Pagar (S/)</label><input type="number" step="0.01" class="form-control" id="monto_pagado" name="monto_pagado" required></div>
+                    <div class="mb-3"><label for="metodo_pago" class="form-label">Método de Pago</label><select class="form-select" id="metodo_pago" name="metodo_pago"><option>Efectivo</option><option>Transferencia</option><option>Yape/Plin</option><option>Otro</option></select></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Genérico de Confirmación (Reutilizado) -->
+<div class="modal fade" id="confirmActionModal" ... >...</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tablaInquilinos = document.getElementById('tabla-inquilinos');
+    const confirmModalEl = new bootstrap.Modal(document.getElementById('confirmActionModal'));
+    const registrarPagoModalEl = new bootstrap.Modal(document.getElementById('registrarPagoModal'));
+    
+    // Delegación de eventos para los botones de la tabla
+    tablaInquilinos.addEventListener('click', function(event) {
+        const button = event.target.closest('button');
+        if (!button) return;
+        
+        const id = button.dataset.id;
+        
+        if (button.classList.contains('btn-eliminar-inquilino')) {
+            confirmarEliminarInquilino(id);
+        } else if (button.classList.contains('btn-registrar-pago')) {
+            const nombre = button.dataset.nombre;
+            abrirModalRegistrarPago(id, nombre);
+        }
+    });
+
+    function confirmarEliminarInquilino(id) {/* ... (código existente) ... */}
+
+    // Nueva función para el modal de pago
+    function abrirModalRegistrarPago(id, nombre) {
+        document.getElementById('id_inquilino_pago').value = id;
+        document.getElementById('registrarPagoModalLabel').innerText = 'Registrar Pago para ' + nombre;
+        // Poner por defecto el mes actual en el input
+        const ahora = new Date();
+        const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+        const anio = ahora.getFullYear();
+        document.getElementById('mes_correspondiente').value = `${anio}-${mes}`;
+        registrarPagoModalEl.show();
+    }
+});
+</script>
+{% endblock %}

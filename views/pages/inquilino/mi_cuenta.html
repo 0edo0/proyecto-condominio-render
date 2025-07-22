@@ -1,0 +1,68 @@
+{# views/pages/inquilino/mi_cuenta.html (Reemplazar completamente) #}
+{% extends "pages/inquilino/inquilino_layout.html" %}
+
+{% block inquilino_title %}Mi Cuenta{% endblock %}
+
+{% block inquilino_content %}
+<div class="row g-4">
+    <!-- Columna Izquierda: Perfil y Habitación -->
+    <div class="col-lg-4">
+        <!-- Tarjeta de Perfil -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header fw-bold"><i class="bi bi-person-fill me-2"></i>Mis Datos</div>
+            <div class="card-body">
+                <p><strong>Nombre:</strong> {{ inquilino.nombres }} {{ inquilino.apellidos }}</p>
+                <p><strong>DNI:</strong> {{ inquilino.dni }}</p>
+                <p><strong>Email:</strong> {{ inquilino.email }}</p>
+                <p><strong>Teléfono:</strong> {{ inquilino.telefono }}</p>
+                <p><strong>Día de Pago:</strong> El día {{ inquilino.dia_pago_mensual }} de cada mes</p>
+            </div>
+        </div>
+        <!-- Tarjeta de Habitación -->
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold"><i class="bi bi-house-door-fill me-2"></i>Mi Habitación</div>
+            {% if habitacion %}
+            <div class="card-body">
+                <p><strong>Número:</strong> {{ habitacion.numero_habitacion }}</p>
+                <p><strong>Descripción:</strong> {{ habitacion.descripcion }}</p>
+                <p><strong>Monto Alquiler:</strong> S/ {{ "%.2f"|format(habitacion.monto_alquiler) }}</p>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <p class="text-muted">Actualmente no tienes una habitación asignada.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Calendario de Pagos -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold"><i class="bi bi-calendar-check-fill me-2"></i>Mi Calendario de Pagos</div>
+            <div class="card-body">
+                <div id="calendario-inquilino"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendario-inquilino');
+    if (calendarEl) {
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next',
+                center: 'title',
+                right: 'today'
+            },
+            events: '/inquilino/api/mis_eventos', // La API que creamos
+            height: 'auto'
+        });
+        calendar.render();
+    }
+});
+</script>
+{% endblock %}

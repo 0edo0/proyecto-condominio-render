@@ -1,0 +1,76 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{% block admin_title %}Gestionar Administradores{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="h2 mb-0">Gestión de Administradores</h1>
+    <a href="{{ url_for('admin.form_nuevo_admin') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill me-2"></i>Crear Nuevo Admin
+    </a>
+</div>
+<hr>
+
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for c, m in messages %}<div class="alert alert-{{ c if c != 'error' else 'danger' }} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover align-middle" id="tabla-admins">
+            <thead>
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in admins %}
+                <tr>
+                    <td>
+                        <strong>{{ admin.apellidos }}, {{ admin.nombres }}</strong>
+                        {% if admin.id_administrador == session.user_id %}<span class="badge bg-info ms-2">Eres tú</span>{% endif %}
+                    </td>
+                    <td>{{ admin.email }}</td>
+                    <td class="text-center">
+                        <a href="{{ url_for('admin.form_editar_admin', id_admin=admin.id_administrador) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                        
+                        {# ¡CONTROL DE SEGURIDAD! El botón de eliminar no aparece para el usuario actual. #}
+                        {% if admin.id_administrador != session.user_id %}
+                        <button class="btn btn-sm btn-outline-danger btn-eliminar-admin" data-id="{{ admin.id_administrador }}" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Reutilizamos el modal genérico de confirmación -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1">...</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tablaAdmins = document.getElementById('tabla-admins');
+    const confirmModalEl = new bootstrap.Modal(document.getElementById('confirmActionModal'));
+
+    if (tablaAdmins) {
+        tablaAdmins.addEventListener('click', function(event) {
+            const button = event.target.closest('button.btn-eliminar-admin');
+            if (button) {
+                const idAdmin = button.dataset.id;
+                confirmarEliminarAdmin(idAdmin);
+            }
+        });
+    }
+
+    function confirmarEliminarAdmin(idAdmin) {
+        const form = document.getElementById('confirmActionForm');
+        document.getElementById('confirmActionModalLabel').textContent = 'Confirmar Eliminación';
+        document.getElementById('confirmActionModalBody').textContent = '¿Estás seguro de que quieres eliminar esta cuenta de administrador? Perderá todo el acceso al sistema.';
+        form.action = '/admin/admins/eliminar/' + idAdmin;
+        confirmModalEl.show();
+    }
+});
+</script>
+{% endblock %}

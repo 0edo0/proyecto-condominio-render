@@ -1,0 +1,47 @@
+{% extends "pages/admin/admin_layout.html" %}
+
+{% block admin_title %}{{ 'Editar' if habitacion else 'Crear' }} Habitación{% endblock %}
+
+{% block admin_content %}
+<h1 class="h2 mb-0">{{ 'Editar' if habitacion else 'Crear' }} Habitación</h1>
+<hr>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.procesar_habitacion') }}">
+            <!-- Campo oculto para el ID en caso de edición -->
+            {% if habitacion %}
+                <input type="hidden" name="id_habitacion" value="{{ habitacion.id_habitacion }}">
+            {% endif %}
+
+            <div class="mb-3">
+                <label for="numero_habitacion" class="form-label">Número de Habitación</label>
+                <input type="text" class="form-control" id="numero_habitacion" name="numero_habitacion" value="{{ habitacion.numero_habitacion if habitacion else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="3">{{ habitacion.descripcion if habitacion else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="monto_alquiler" class="form-label">Monto de Alquiler (S/)</label>
+                <input type="number" step="0.01" class="form-control" id="monto_alquiler" name="monto_alquiler" value="{{ habitacion.monto_alquiler if habitacion else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select class="form-select" id="estado" name="estado" required {% if habitacion and habitacion.estado == 'ocupada' %}disabled{% endif %}>
+                    <option value="disponible" {% if habitacion and habitacion.estado == 'disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="mantenimiento" {% if habitacion and habitacion.estado == 'mantenimiento' %}selected{% endif %}>Mantenimiento</option>
+                    {% if habitacion and habitacion.estado == 'ocupada' %}
+                        <option value="ocupada" selected>Ocupada (No se puede cambiar)</option>
+                    {% endif %}
+                </select>
+                {% if habitacion and habitacion.estado == 'ocupada' %}
+                <div class="form-text">El estado no se puede cambiar mientras la habitación esté ocupada.</div>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('admin.gestionar_habitaciones') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

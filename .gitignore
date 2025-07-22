@@ -1,0 +1,12 @@
+# Carpeta del Entorno Virtual (contiene librerías, es muy pesada e innecesaria)
+venv/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Archivos de configuración de tu editor (son personales)
+.vscode/
+
+# ¡¡¡EL ARCHIVO MÁS IMPORTANTE A IGNORAR!!! Contiene tus contraseñas.
+.env

@@ -1,24 +1,24 @@
-# Manual de instrucciones para Render
+# Manual de instrucciones para Render (versión corregida)
 services:
   # 1. Definimos el servicio de la base de datos
-  - type: pserv
-    name: condominio-db
-    env: postgres
-    plan: free # Usa el plan gratuito
-    # HEMOS ELIMINADO LA LÍNEA DE LA VERSIÓN DE AQUÍ
+  - name: condominio-db         # Nombre del servicio
+    type: postgres            # CORRECCIÓN: El tipo correcto es 'postgres'
+    databaseName: condominio_db # Nombre para la base de datos interna
+    user: condominio_user     # Nombre de usuario para la BD
+    plan: free                # Usamos el plan gratuito
 
   # 2. Definimos el servicio de nuestra aplicación web
-  - type: web
-    name: condominio-app
+  - name: condominio-app
+    type: web
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4 # O la versión que uses
+        value: 3.11.4
       - key: DATABASE_URL
         fromService:
-          type: pserv
+          type: postgres # CORRECCIÓN: Debe coincidir con el tipo de la BD
           name: condominio-db
           property: connectionString

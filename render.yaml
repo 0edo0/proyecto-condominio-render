@@ -1,15 +1,16 @@
-# Manual de instrucciones para Render (versión corregida)
-services:
-  # 1. Definimos el servicio de la base de datos
-  - name: condominio-db         # Nombre del servicio
-    type: postgres            # CORRECCIÓN: El tipo correcto es 'postgres'
-    databaseName: condominio_db # Nombre para la base de datos interna
+# Manual de instrucciones para Render (Blueprint con estructura correcta)
+
+# Primero, definimos todas las bases de datos que necesita el proyecto.
+databases:
+  - name: condominio-db         # Nombre del servicio de la base de datos
+    databaseName: condominio_db   # Nombre para la base de datos interna
     user: condominio_user     # Nombre de usuario para la BD
     plan: free                # Usamos el plan gratuito
 
-  # 2. Definimos el servicio de nuestra aplicación web
-  - name: condominio-app
-    type: web
+# Segundo, definimos todos los servicios web, workers, etc.
+services:
+  - type: web
+    name: condominio-app
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
@@ -18,7 +19,6 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.4
       - key: DATABASE_URL
-        fromService:
-          type: postgres # CORRECCIÓN: Debe coincidir con el tipo de la BD
+        fromDatabase: # CORRECCIÓN: Se usa 'fromDatabase' cuando la BD se define arriba
           name: condominio-db
           property: connectionString
